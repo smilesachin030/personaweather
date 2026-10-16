@@ -10,6 +10,9 @@ output-metadata.json
 # IDE and operating-system files
 .idea/
 *.iml
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
 .DS_Store
 Thumbs.db
 captures/
