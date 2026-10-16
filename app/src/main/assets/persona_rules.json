@@ -1,0 +1,536 @@
+{
+  "meta": {
+    "note": "Bundled as an Android asset (assets/persona_rules.json). RulesLoader parses this at startup. AdvisoryEngine evaluates each active persona's rules against the weather series at a given time and returns advisories.",
+    "severity_levels": [
+      "caution",
+      "alert"
+    ],
+    "operators_supported": [
+      ">=",
+      "<=",
+      ">",
+      "<",
+      "==",
+      "!="
+    ],
+    "schema_version": 2,
+    "rule_fields": {
+      "id": "unique string",
+      "field": "weather_timeseries column name",
+      "operator": "one of operators_supported",
+      "value": "number or string to compare against",
+      "severity": "caution | alert",
+      "message": "English advisory text",
+      "message_ta": "(optional) Tamil advisory text",
+      "message_hi": "(optional) Hindi advisory text",
+      "lookahead_hours": "(optional) if present, evaluate an aggregate over rows from 'now' to now+N hours instead of the single current row",
+      "aggregate": "(optional, required with lookahead_hours) max | min | sum | avg"
+    }
+  },
+  "cards": {
+    "aqi_card": {
+      "label": "Air Quality",
+      "fields": [
+        "aqi_value",
+        "aqi_category",
+        "dominant_pollutant",
+        "pm2_5",
+        "pm10"
+      ]
+    },
+    "pollen_card": {
+      "label": "Pollen",
+      "fields": [
+        "pollen_grass",
+        "pollen_tree",
+        "pollen_ragweed",
+        "pollen_grass_concentration",
+        "pollen_alder_concentration",
+        "pollen_birch_concentration",
+        "pollen_mugwort_concentration",
+        "pollen_olive_concentration",
+        "pollen_ragweed_concentration"
+      ]
+    },
+    "uv_card": {
+      "label": "UV Index",
+      "fields": [
+        "uv_index"
+      ]
+    },
+    "humidity_card": {
+      "label": "Humidity & Dew Point",
+      "fields": [
+        "humidity",
+        "dew_point"
+      ]
+    },
+    "running_window_card": {
+      "label": "Best Running Hours",
+      "fields": [
+        "temperature",
+        "wind_speed"
+      ]
+    },
+    "heat_card": {
+      "label": "Heat",
+      "fields": [
+        "heat_alert",
+        "temperature",
+        "feels_like"
+      ]
+    },
+    "marine_card": {
+      "label": "Sea Conditions",
+      "fields": [
+        "wave_height_m",
+        "wave_period_sec",
+        "wave_direction",
+        "water_temperature",
+        "tide_height_m"
+      ],
+      "requires_coastal": true
+    },
+    "travel_alerts_card": {
+      "label": "Travel Conditions",
+      "fields": [
+        "visibility_km",
+        "fog_flag",
+        "rain_chance_percent"
+      ]
+    },
+    "family_commute_card": {
+      "label": "School Commute",
+      "fields": [
+        "rain_chance_percent",
+        "heat_alert"
+      ]
+    },
+    "agriculture_card": {
+      "label": "Soil & Crop Conditions",
+      "fields": [
+        "soil_moisture_percent",
+        "rainfall_mm"
+      ]
+    },
+    "commute_traffic_card": {
+      "label": "Commute & Traffic",
+      "fields": [
+        "visibility_km",
+        "fog_flag",
+        "rain_chance_percent"
+      ]
+    },
+    "event_planning_card": {
+      "label": "Event Outlook",
+      "fields": [
+        "comfort_index",
+        "rain_chance_percent",
+        "uv_index"
+      ]
+    },
+    "cloth_drying_card": {
+      "label": "Clothes Drying",
+      "fields": [
+        "humidity",
+        "rain_chance_percent",
+        "wind_speed",
+        "temperature"
+      ],
+      "derived": "clothesDrying"
+    },
+    "trip_planner_card": {
+      "label": "Trip Planner",
+      "fields": [
+        "rain_chance_percent",
+        "aqi_value",
+        "visibility_km"
+      ],
+      "derived": "route"
+    },
+    "daily_outlook_card": {
+      "label": "Best Day Outlook",
+      "fields": [
+        "temperature",
+        "rain_chance_percent",
+        "aqi_value",
+        "comfort_index"
+      ],
+      "derived": "dailyOutlook"
+    }
+  },
+  "personas": {
+    "health_conscious": {
+      "label": "Health-conscious",
+      "requires_coastal": false,
+      "default_cards": [
+        "aqi_card",
+        "pollen_card",
+        "uv_card",
+        "humidity_card"
+      ],
+      "rules": [
+        {
+          "id": "hc_aqi_caution",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 100,
+          "severity": "caution",
+          "message": "Air quality is moderate-to-unhealthy for sensitive groups. Limit prolonged outdoor exertion.",
+          "message_ta": "காற்றின் தரம் உணர்திறன் அதிகமுள்ளவர்களுக்கு மிதமானது முதல் ஆரோக்கியமற்றது வரை உள்ளது. நீண்ட நேர வெளிப்புற உடற்பயிற்சியைத் தவிர்க்கவும்.",
+          "message_hi": "संवेदनशील लोगों के लिए हवा की गुणवत्ता मध्यम से अस्वस्थ स्तर तक है। लंबे समय तक बाहर मेहनत वाली गतिविधि से बचें।"
+        },
+        {
+          "id": "hc_aqi_alert",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 150,
+          "severity": "alert",
+          "message": "Air quality is unhealthy. Sensitive groups should avoid outdoor activity.",
+          "message_ta": "காற்றின் தரம் ஆரோக்கியமற்றது. உணர்திறன் அதிகமுள்ளவர்கள் வெளிப்புறச் செயல்பாடுகளைத் தவிர்க்கவும்.",
+          "message_hi": "हवा की गुणवत्ता अस्वस्थ स्तर पर है। संवेदनशील लोगों को बाहर की गतिविधियों से बचना चाहिए।"
+        },
+        {
+          "id": "hc_pollen_caution",
+          "field": "pollen_grass",
+          "operator": "==",
+          "value": "Moderate",
+          "severity": "caution",
+          "message": "Grass pollen is moderate today — allergy sufferers take note.",
+          "message_ta": "இன்று புல் மகரந்தம் மிதமான அளவில் உள்ளது. ஒவ்வாமை உள்ளவர்கள் கவனமாக இருங்கள்.",
+          "message_hi": "आज घास के पराग का स्तर मध्यम है — एलर्जी से परेशान लोग ध्यान रखें।"
+        },
+        {
+          "id": "hc_uv_caution",
+          "field": "uv_index",
+          "operator": ">=",
+          "value": 8,
+          "severity": "caution",
+          "message": "UV index is very high. Wear sunscreen and protective clothing.",
+          "message_ta": "புறஊதாக் குறியீடு மிக அதிகம். சூரியக் கதிர் தடுப்பைப் பயன்படுத்தி பாதுகாப்பான உடைகளை அணியுங்கள்.",
+          "message_hi": "UV सूचकांक बहुत अधिक है। सनस्क्रीन लगाएँ और सुरक्षात्मक कपड़े पहनें।"
+        }
+      ]
+    },
+    "outdoor_fitness": {
+      "label": "Outdoor Fitness Enthusiast",
+      "requires_coastal": false,
+      "default_cards": [
+        "running_window_card",
+        "heat_card",
+        "uv_card",
+        "aqi_card"
+      ],
+      "rules": [
+        {
+          "id": "of_heat_caution",
+          "field": "heat_alert",
+          "operator": "==",
+          "value": 1,
+          "severity": "caution",
+          "message": "Heat index is high. Prefer early morning or evening workouts.",
+          "message_ta": "வெப்பக் குறியீடு அதிகமாக உள்ளது. அதிகாலை அல்லது மாலை நேர உடற்பயிற்சியைத் தேர்ந்தெடுக்கவும்.",
+          "message_hi": "गर्मी का सूचकांक अधिक है। कसरत के लिए सुबह जल्दी या शाम का समय चुनें।"
+        },
+        {
+          "id": "of_uv_caution",
+          "field": "uv_index",
+          "operator": ">=",
+          "value": 8,
+          "severity": "caution",
+          "message": "UV is very high — avoid peak midday outdoor exercise.",
+          "message_ta": "புறஊதா கதிர்வீச்சு மிக அதிகம். நண்பகல் நேர வெளிப்புற உடற்பயிற்சியைத் தவிர்க்கவும்.",
+          "message_hi": "UV स्तर बहुत अधिक है — दोपहर के चरम समय में बाहर कसरत करने से बचें।"
+        },
+        {
+          "id": "of_wind_caution",
+          "field": "wind_speed",
+          "operator": ">=",
+          "value": 20,
+          "severity": "caution",
+          "message": "Wind speeds are high — outdoor running or cycling may be difficult.",
+          "message_ta": "காற்றின் வேகம் அதிகம். வெளியில் ஓடுவதும் மிதிவண்டி ஓட்டுவதும் சிரமமாக இருக்கலாம்.",
+          "message_hi": "हवा तेज़ है — बाहर दौड़ना या साइकिल चलाना मुश्किल हो सकता है।"
+        },
+        {
+          "id": "of_aqi_alert",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 150,
+          "severity": "alert",
+          "message": "Air quality is unhealthy for strenuous outdoor exercise. Consider an indoor workout.",
+          "message_ta": "காற்றின் தரம் கடுமையான வெளிப்புற உடற்பயிற்சிக்கு ஏற்றதல்ல. உள்ளரங்கில் உடற்பயிற்சி செய்யலாம்.",
+          "message_hi": "हवा की गुणवत्ता कठिन बाहरी कसरत के लिए अस्वस्थ है। घर के अंदर कसरत करने पर विचार करें।"
+        }
+      ]
+    },
+    "beach_surfer": {
+      "label": "Beachgoer & Surfer",
+      "requires_coastal": true,
+      "default_cards": [
+        "marine_card",
+        "uv_card"
+      ],
+      "rules": [
+        {
+          "id": "bs_wave_caution",
+          "field": "wave_height_m",
+          "operator": ">=",
+          "value": 1.5,
+          "severity": "caution",
+          "message": "Wave heights are elevated — moderate rip-current risk.",
+          "message_ta": "அலைகள் உயரமாக உள்ளன. கடல் நீரோட்ட அபாயம் மிதமாக உள்ளது.",
+          "message_hi": "लहरें ऊँची हैं — समुद्र की तेज़ बहती धाराओं का मध्यम जोखिम है।"
+        },
+        {
+          "id": "bs_wave_alert",
+          "field": "wave_height_m",
+          "operator": ">=",
+          "value": 2.0,
+          "severity": "alert",
+          "message": "Rough sea conditions — swimming and surfing are not advised.",
+          "message_ta": "கடல் கொந்தளிப்பாக உள்ளது. நீச்சலும் அலைச்சறுக்கும் பரிந்துரைக்கப்படவில்லை.",
+          "message_hi": "समुद्र की स्थिति खराब है — तैराकी और सर्फ़िंग की सलाह नहीं दी जाती।"
+        },
+        {
+          "id": "bs_wind_caution",
+          "field": "wind_speed",
+          "operator": ">=",
+          "value": 18,
+          "severity": "caution",
+          "message": "Strong onshore winds may create choppy surf conditions.",
+          "message_ta": "கரையை நோக்கி வீசும் பலத்த காற்றால் கடல் அலைகள் கொந்தளிக்கலாம்.",
+          "message_hi": "समुद्र की ओर से चलने वाली तेज़ हवाओं से लहरें उबड़-खाबड़ हो सकती हैं।"
+        }
+      ]
+    },
+    "traveler": {
+      "label": "Traveler",
+      "requires_coastal": false,
+      "default_cards": [
+        "travel_alerts_card",
+        "aqi_card",
+        "trip_planner_card"
+      ],
+      "rules": [
+        {
+          "id": "tr_visibility_caution",
+          "field": "visibility_km",
+          "operator": "<=",
+          "value": 5,
+          "severity": "caution",
+          "message": "Reduced visibility may affect road and flight travel.",
+          "message_ta": "குறைந்த பார்வைத்திறன் சாலை மற்றும் விமானப் பயணத்தைப் பாதிக்கலாம்.",
+          "message_hi": "कम दृश्यता से सड़क और हवाई यात्रा प्रभावित हो सकती है।"
+        },
+        {
+          "id": "tr_fog_alert",
+          "field": "fog_flag",
+          "operator": "==",
+          "value": 1,
+          "severity": "alert",
+          "message": "Dense fog reported — expect travel delays.",
+          "message_ta": "அடர்ந்த மூடுபனி பதிவாகியுள்ளது. பயணத் தாமதங்களை எதிர்பார்க்கவும்.",
+          "message_hi": "घना कोहरा दर्ज किया गया है — यात्रा में देरी हो सकती है।"
+        },
+        {
+          "id": "tr_rain_caution",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "caution",
+          "message": "High chance of rain — pack accordingly and check for delays.",
+          "message_ta": "மழைக்கு அதிக வாய்ப்பு உள்ளது. அதற்கேற்ப தயாராகி, பயணத் தாமதங்களைச் சரிபார்க்கவும்.",
+          "message_hi": "बारिश की संभावना अधिक है — उसी अनुसार सामान रखें और यात्रा में देरी की जानकारी लें।"
+        }
+      ]
+    },
+    "parent_family": {
+      "label": "Parent & Family",
+      "requires_coastal": false,
+      "default_cards": [
+        "family_commute_card",
+        "aqi_card",
+        "heat_card",
+        "cloth_drying_card"
+      ],
+      "rules": [
+        {
+          "id": "pf_rain_caution",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 50,
+          "severity": "caution",
+          "message": "Rain likely during commute hours — carry umbrellas or raincoats.",
+          "message_ta": "பயண நேரத்தில் மழை பெய்யக்கூடும். குடை அல்லது மழைக்கோட்டு எடுத்துச் செல்லுங்கள்.",
+          "message_hi": "आने-जाने के समय बारिश हो सकती है — छाता या रेनकोट साथ रखें।"
+        },
+        {
+          "id": "pf_heat_caution",
+          "field": "heat_alert",
+          "operator": "==",
+          "value": 1,
+          "severity": "caution",
+          "message": "High heat expected — make sure kids stay hydrated.",
+          "message_ta": "வெப்பம் அதிகமாக இருக்கும். குழந்தைகள் போதுமான தண்ணீர் குடிப்பதை உறுதிசெய்யுங்கள்.",
+          "message_hi": "तेज़ गर्मी रहने की संभावना है — बच्चों को पर्याप्त पानी पिलाएँ।"
+        },
+        {
+          "id": "pf_aqi_alert",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 150,
+          "severity": "alert",
+          "message": "Unhealthy air quality — consider masks for the school commute.",
+          "message_ta": "காற்றின் தரம் ஆரோக்கியமற்றது. பள்ளிப் பயணத்திற்கு முகக்கவசம் அணிவதைக் கருதுங்கள்.",
+          "message_hi": "हवा की गुणवत्ता अस्वस्थ है — स्कूल आने-जाने के लिए मास्क लगाने पर विचार करें।"
+        },
+        {
+          "id": "pf_cloth_alert",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "alert",
+          "message": "Rain expected within 3 hours — bring in any drying clothes.",
+          "message_ta": "அடுத்த 3 மணிநேரத்தில் மழை பெய்யலாம். உலர்த்தும் துணிகளை உள்ளே எடுத்துவையுங்கள்.",
+          "message_hi": "अगले 3 घंटों में बारिश हो सकती है — सूख रहे कपड़ों को अंदर ले आएँ।",
+          "lookahead_hours": 3,
+          "aggregate": "max"
+        }
+      ]
+    },
+    "agriculture_gardener": {
+      "label": "Agriculture & Gardener",
+      "requires_coastal": false,
+      "default_cards": [
+        "agriculture_card"
+      ],
+      "rules": [
+        {
+          "id": "ag_soil_caution",
+          "field": "soil_moisture_percent",
+          "operator": "<=",
+          "value": 25,
+          "severity": "caution",
+          "message": "Soil moisture is low — irrigation is recommended.",
+          "message_ta": "மண்ணின் ஈரப்பதம் குறைவாக உள்ளது. நீர்ப்பாசனம் செய்யலாம்.",
+          "message_hi": "मिट्टी में नमी कम है — सिंचाई करने की सलाह दी जाती है।"
+        },
+        {
+          "id": "ag_frost_alert",
+          "field": "frost_alert",
+          "operator": "==",
+          "value": 1,
+          "severity": "alert",
+          "message": "Frost risk detected — protect sensitive crops overnight.",
+          "message_ta": "பனிப்படல அபாயம் உள்ளது. இரவில் மென்மையான பயிர்களைப் பாதுகாக்கவும்.",
+          "message_hi": "पाले का जोखिम है — रात में संवेदनशील फसलों की रक्षा करें।"
+        },
+        {
+          "id": "ag_rain_caution",
+          "field": "rainfall_mm",
+          "operator": ">=",
+          "value": 5,
+          "severity": "caution",
+          "message": "5 mm or more of rain expected in the next 24 hours — hold off on irrigation and spraying.",
+          "message_ta": "அடுத்த 24 மணிநேரத்தில் 5 மிமீ அல்லது அதற்கு மேல் மழை பெய்யலாம். நீர்ப்பாசனத்தையும் தெளிப்பையும் ஒத்திவைக்கவும்.",
+          "message_hi": "अगले 24 घंटों में 5 मिमी या अधिक बारिश हो सकती है — सिंचाई और छिड़काव रोक दें।",
+          "lookahead_hours": 24,
+          "aggregate": "sum"
+        }
+      ]
+    },
+    "commuter": {
+      "label": "Commuter",
+      "requires_coastal": false,
+      "default_cards": [
+        "commute_traffic_card",
+        "trip_planner_card"
+      ],
+      "rules": [
+        {
+          "id": "cm_fog_caution",
+          "field": "fog_flag",
+          "operator": "==",
+          "value": 1,
+          "severity": "caution",
+          "message": "Fog may reduce visibility during your commute.",
+          "message_ta": "மூடுபனி பயண நேரத்தில் பார்வைத்திறனைக் குறைக்கலாம்.",
+          "message_hi": "कोहरे से आपके आने-जाने के समय दृश्यता कम हो सकती है।"
+        },
+        {
+          "id": "cm_rain_alert",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "alert",
+          "message": "Heavy rain likely — expect traffic delays and waterlogging risk.",
+          "message_ta": "கனமழை பெய்யக்கூடும். போக்குவரத்து தாமதத்தையும் சாலைகளில் நீர் தேங்கும் அபாயத்தையும் எதிர்பார்க்கவும்.",
+          "message_hi": "भारी बारिश हो सकती है — ट्रैफ़िक में देरी और जलभराव का जोखिम है।"
+        },
+        {
+          "id": "cm_visibility_caution",
+          "field": "visibility_km",
+          "operator": "<=",
+          "value": 5,
+          "severity": "caution",
+          "message": "Low visibility on the roads — drive carefully.",
+          "message_ta": "சாலைகளில் பார்வைத்திறன் குறைவாக உள்ளது. கவனமாக வாகனம் ஓட்டுங்கள்.",
+          "message_hi": "सड़कों पर दृश्यता कम है — सावधानी से वाहन चलाएँ।"
+        },
+        {
+          "id": "cm_rain_soon",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "caution",
+          "message": "Rain expected within 2 hours — plan your trip or carry rain gear.",
+          "message_ta": "அடுத்த 2 மணிநேரத்தில் மழை பெய்யலாம். பயணத்தைத் திட்டமிடுங்கள் அல்லது மழைப் பாதுகாப்பு உடைகளை எடுத்துச் செல்லுங்கள்.",
+          "message_hi": "अगले 2 घंटों में बारिश हो सकती है — यात्रा की योजना बनाएँ या बारिश से बचाव का सामान साथ रखें।",
+          "lookahead_hours": 2,
+          "aggregate": "max"
+        }
+      ]
+    },
+    "event_planner": {
+      "label": "Event Planner",
+      "requires_coastal": false,
+      "default_cards": [
+        "event_planning_card",
+        "daily_outlook_card"
+      ],
+      "rules": [
+        {
+          "id": "ep_comfort_alert",
+          "field": "comfort_index",
+          "operator": "==",
+          "value": "Poor",
+          "severity": "alert",
+          "message": "Conditions are poor for outdoor events — consider indoor alternatives.",
+          "message_ta": "வெளிப்புற நிகழ்ச்சிகளுக்கு வானிலை ஏற்றதல்ல. உள்ளரங்க மாற்றுத் திட்டத்தைப் பரிசீலிக்கவும்.",
+          "message_hi": "बाहरी कार्यक्रमों के लिए मौसम अनुकूल नहीं है — अंदर की जगह पर आयोजन करने पर विचार करें।"
+        },
+        {
+          "id": "ep_rain_caution",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 40,
+          "severity": "caution",
+          "message": "Moderate chance of rain — have contingency cover ready.",
+          "message_ta": "மழைக்கு மிதமான வாய்ப்பு உள்ளது. மாற்றுப் பாதுகாப்பு ஏற்பாட்டைத் தயாராக வைத்திருங்கள்.",
+          "message_hi": "बारिश की मध्यम संभावना है — वैकल्पिक ढकाव की व्यवस्था तैयार रखें।"
+        },
+        {
+          "id": "ep_uv_caution",
+          "field": "uv_index",
+          "operator": ">=",
+          "value": 8,
+          "severity": "caution",
+          "message": "High UV is expected during your event — identify shaded spots and direct attendees there.",
+          "message_ta": "நிகழ்வின்போது புறஊதா கதிர்வீச்சு அதிகமாக இருக்கும். நிழலான இடங்களைத் தேர்ந்தெடுத்து, பங்கேற்பாளர்களுக்கு வழிகாட்டுங்கள்.",
+          "message_hi": "कार्यक्रम के दौरान UV अधिक रहने की संभावना है — छायादार जगहें तय करें और प्रतिभागियों को वहाँ भेजें।"
+        }
+      ]
+    }
+  }
+}

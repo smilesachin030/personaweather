@@ -1,0 +1,31 @@
+# Gradle and Android build outputs
+.gradle/
+.kotlin/
+**/build/
+.externalNativeBuild/
+.cxx/
+local.properties
+output-metadata.json
+
+# IDE and operating-system files
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+captures/
+
+# Local logs and generated packages
+*.log
+buildlog.txt
+*.apk
+*.aab
+
+# Signing material must stay out of source control
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+google-services.json
+
+# Profiling data
+*.hprof

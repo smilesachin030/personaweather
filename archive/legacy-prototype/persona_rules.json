@@ -1,0 +1,475 @@
+{
+  "meta": {
+    "note": "Bundled as an Android asset (assets/persona_rules.json). RulesLoader parses this at startup. AdvisoryEngine evaluates each active persona's rules against the weather series at a given time and returns advisories.",
+    "severity_levels": [
+      "caution",
+      "alert"
+    ],
+    "operators_supported": [
+      ">=",
+      "<=",
+      ">",
+      "<",
+      "==",
+      "!="
+    ],
+    "schema_version": 2,
+    "rule_fields": {
+      "id": "unique string",
+      "field": "weather_timeseries column name",
+      "operator": "one of operators_supported",
+      "value": "number or string to compare against",
+      "severity": "caution | alert",
+      "message": "English advisory text",
+      "message_ta": "(optional, phase 2) Tamil advisory text",
+      "lookahead_hours": "(optional) if present, evaluate an aggregate over rows from 'now' to now+N hours instead of the single current row",
+      "aggregate": "(optional, required with lookahead_hours) max | min | sum | avg"
+    }
+  },
+  "cards": {
+    "aqi_card": {
+      "label": "Air Quality",
+      "fields": [
+        "aqi_value",
+        "aqi_category",
+        "dominant_pollutant",
+        "pm2_5",
+        "pm10"
+      ]
+    },
+    "pollen_card": {
+      "label": "Pollen",
+      "fields": [
+        "pollen_grass",
+        "pollen_tree",
+        "pollen_ragweed"
+      ]
+    },
+    "uv_card": {
+      "label": "UV Index",
+      "fields": [
+        "uv_index"
+      ]
+    },
+    "humidity_card": {
+      "label": "Humidity & Dew Point",
+      "fields": [
+        "humidity",
+        "dew_point"
+      ]
+    },
+    "running_window_card": {
+      "label": "Best Running Hours",
+      "fields": [
+        "best_running_hour",
+        "temperature",
+        "wind_speed"
+      ]
+    },
+    "heat_card": {
+      "label": "Heat",
+      "fields": [
+        "heat_alert",
+        "temperature",
+        "feels_like"
+      ]
+    },
+    "marine_card": {
+      "label": "Sea Conditions",
+      "fields": [
+        "wave_height_m",
+        "wave_period_sec",
+        "wave_direction",
+        "water_temperature",
+        "tide_height_m"
+      ],
+      "requires_coastal": true
+    },
+    "travel_alerts_card": {
+      "label": "Travel Conditions",
+      "fields": [
+        "visibility_km",
+        "fog_flag",
+        "rain_chance_percent"
+      ]
+    },
+    "family_commute_card": {
+      "label": "School Commute",
+      "fields": [
+        "rain_chance_percent",
+        "heat_alert"
+      ]
+    },
+    "agriculture_card": {
+      "label": "Soil & Crop Conditions",
+      "fields": [
+        "soil_moisture_percent",
+        "rainfall_mm",
+        "frost_alert"
+      ]
+    },
+    "commute_traffic_card": {
+      "label": "Commute & Traffic",
+      "fields": [
+        "visibility_km",
+        "fog_flag",
+        "rain_chance_percent"
+      ]
+    },
+    "event_planning_card": {
+      "label": "Event Outlook",
+      "fields": [
+        "comfort_index",
+        "rain_chance_percent",
+        "uv_index"
+      ]
+    },
+    "cloth_drying_card": {
+      "label": "Clothes Drying",
+      "fields": [
+        "humidity",
+        "rain_chance_percent",
+        "wind_speed",
+        "temperature"
+      ],
+      "derived": "clothesDrying"
+    },
+    "trip_planner_card": {
+      "label": "Trip Planner",
+      "fields": [
+        "rain_chance_percent",
+        "aqi_value",
+        "visibility_km"
+      ],
+      "derived": "route"
+    },
+    "daily_outlook_card": {
+      "label": "Best Day Outlook",
+      "fields": [
+        "temperature",
+        "rain_chance_percent",
+        "aqi_value",
+        "comfort_index"
+      ],
+      "derived": "dailyOutlook"
+    }
+  },
+  "personas": {
+    "health_conscious": {
+      "label": "Health-conscious",
+      "requires_coastal": false,
+      "default_cards": [
+        "aqi_card",
+        "pollen_card",
+        "uv_card",
+        "humidity_card"
+      ],
+      "rules": [
+        {
+          "id": "hc_aqi_caution",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 100,
+          "severity": "caution",
+          "message": "Air quality is moderate-to-unhealthy for sensitive groups. Limit prolonged outdoor exertion."
+        },
+        {
+          "id": "hc_aqi_alert",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 150,
+          "severity": "alert",
+          "message": "Air quality is unhealthy. Sensitive groups should avoid outdoor activity."
+        },
+        {
+          "id": "hc_pollen_caution",
+          "field": "pollen_grass",
+          "operator": "==",
+          "value": "Moderate",
+          "severity": "caution",
+          "message": "Grass pollen is moderate today — allergy sufferers take note."
+        },
+        {
+          "id": "hc_uv_caution",
+          "field": "uv_index",
+          "operator": ">=",
+          "value": 8,
+          "severity": "caution",
+          "message": "UV index is very high. Wear sunscreen and protective clothing."
+        }
+      ]
+    },
+    "outdoor_fitness": {
+      "label": "Outdoor Fitness Enthusiast",
+      "requires_coastal": false,
+      "default_cards": [
+        "running_window_card",
+        "heat_card",
+        "uv_card",
+        "aqi_card"
+      ],
+      "rules": [
+        {
+          "id": "of_heat_caution",
+          "field": "heat_alert",
+          "operator": "==",
+          "value": 1,
+          "severity": "caution",
+          "message": "Heat index is high. Prefer early morning or evening workouts."
+        },
+        {
+          "id": "of_uv_caution",
+          "field": "uv_index",
+          "operator": ">=",
+          "value": 8,
+          "severity": "caution",
+          "message": "UV is very high — avoid peak midday outdoor exercise."
+        },
+        {
+          "id": "of_wind_caution",
+          "field": "wind_speed",
+          "operator": ">=",
+          "value": 20,
+          "severity": "caution",
+          "message": "Wind speeds are high — outdoor running or cycling may be difficult."
+        },
+        {
+          "id": "of_aqi_alert",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 150,
+          "severity": "alert",
+          "message": "Air quality is unhealthy for strenuous outdoor exercise. Consider an indoor workout."
+        }
+      ]
+    },
+    "beach_surfer": {
+      "label": "Beachgoer & Surfer",
+      "requires_coastal": true,
+      "default_cards": [
+        "marine_card",
+        "uv_card"
+      ],
+      "rules": [
+        {
+          "id": "bs_wave_caution",
+          "field": "wave_height_m",
+          "operator": ">=",
+          "value": 1.5,
+          "severity": "caution",
+          "message": "Wave heights are elevated — moderate rip-current risk."
+        },
+        {
+          "id": "bs_wave_alert",
+          "field": "wave_height_m",
+          "operator": ">=",
+          "value": 2.0,
+          "severity": "alert",
+          "message": "Rough sea conditions — swimming and surfing are not advised."
+        },
+        {
+          "id": "bs_wind_caution",
+          "field": "wind_speed",
+          "operator": ">=",
+          "value": 18,
+          "severity": "caution",
+          "message": "Strong onshore winds may create choppy surf conditions."
+        }
+      ]
+    },
+    "traveler": {
+      "label": "Traveler",
+      "requires_coastal": false,
+      "default_cards": [
+        "travel_alerts_card",
+        "aqi_card",
+        "trip_planner_card"
+      ],
+      "rules": [
+        {
+          "id": "tr_visibility_caution",
+          "field": "visibility_km",
+          "operator": "<=",
+          "value": 5,
+          "severity": "caution",
+          "message": "Reduced visibility may affect road and flight travel."
+        },
+        {
+          "id": "tr_fog_alert",
+          "field": "fog_flag",
+          "operator": "==",
+          "value": 1,
+          "severity": "alert",
+          "message": "Dense fog reported — expect travel delays."
+        },
+        {
+          "id": "tr_rain_caution",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "caution",
+          "message": "High chance of rain — pack accordingly and check for delays."
+        }
+      ]
+    },
+    "parent_family": {
+      "label": "Parent & Family",
+      "requires_coastal": false,
+      "default_cards": [
+        "family_commute_card",
+        "aqi_card",
+        "heat_card",
+        "cloth_drying_card"
+      ],
+      "rules": [
+        {
+          "id": "pf_rain_caution",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 50,
+          "severity": "caution",
+          "message": "Rain likely during commute hours — carry umbrellas or raincoats."
+        },
+        {
+          "id": "pf_heat_caution",
+          "field": "heat_alert",
+          "operator": "==",
+          "value": 1,
+          "severity": "caution",
+          "message": "High heat expected — make sure kids stay hydrated."
+        },
+        {
+          "id": "pf_aqi_alert",
+          "field": "aqi_value",
+          "operator": ">=",
+          "value": 150,
+          "severity": "alert",
+          "message": "Unhealthy air quality — consider masks for the school commute."
+        },
+        {
+          "id": "pf_cloth_alert",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "alert",
+          "message": "Rain expected within 3 hours — bring in any drying clothes.",
+          "lookahead_hours": 3,
+          "aggregate": "max"
+        }
+      ]
+    },
+    "agriculture_gardener": {
+      "label": "Agriculture & Gardener",
+      "requires_coastal": false,
+      "default_cards": [
+        "agriculture_card"
+      ],
+      "rules": [
+        {
+          "id": "ag_soil_caution",
+          "field": "soil_moisture_percent",
+          "operator": "<=",
+          "value": 25,
+          "severity": "caution",
+          "message": "Soil moisture is low — irrigation is recommended."
+        },
+        {
+          "id": "ag_frost_alert",
+          "field": "frost_alert",
+          "operator": "==",
+          "value": 1,
+          "severity": "alert",
+          "message": "Frost risk detected — protect sensitive crops overnight."
+        },
+        {
+          "id": "ag_rain_caution",
+          "field": "rainfall_mm",
+          "operator": ">=",
+          "value": 5,
+          "severity": "caution",
+          "message": "5 mm or more of rain expected in the next 24 hours — hold off on irrigation and spraying.",
+          "lookahead_hours": 24,
+          "aggregate": "sum"
+        }
+      ]
+    },
+    "commuter": {
+      "label": "Commuter",
+      "requires_coastal": false,
+      "default_cards": [
+        "commute_traffic_card",
+        "trip_planner_card"
+      ],
+      "rules": [
+        {
+          "id": "cm_fog_caution",
+          "field": "fog_flag",
+          "operator": "==",
+          "value": 1,
+          "severity": "caution",
+          "message": "Fog may reduce visibility during your commute."
+        },
+        {
+          "id": "cm_rain_alert",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "alert",
+          "message": "Heavy rain likely — expect traffic delays and waterlogging risk."
+        },
+        {
+          "id": "cm_visibility_caution",
+          "field": "visibility_km",
+          "operator": "<=",
+          "value": 5,
+          "severity": "caution",
+          "message": "Low visibility on the roads — drive carefully."
+        },
+        {
+          "id": "cm_rain_soon",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 60,
+          "severity": "caution",
+          "message": "Rain expected within 2 hours — plan your trip or carry rain gear.",
+          "lookahead_hours": 2,
+          "aggregate": "max"
+        }
+      ]
+    },
+    "event_planner": {
+      "label": "Event Planner",
+      "requires_coastal": false,
+      "default_cards": [
+        "event_planning_card",
+        "daily_outlook_card"
+      ],
+      "rules": [
+        {
+          "id": "ep_comfort_alert",
+          "field": "comfort_index",
+          "operator": "==",
+          "value": "Poor",
+          "severity": "alert",
+          "message": "Conditions are poor for outdoor events — consider indoor alternatives."
+        },
+        {
+          "id": "ep_rain_caution",
+          "field": "rain_chance_percent",
+          "operator": ">=",
+          "value": 40,
+          "severity": "caution",
+          "message": "Moderate chance of rain — have contingency cover ready."
+        },
+        {
+          "id": "ep_uv_caution",
+          "field": "uv_index",
+          "operator": ">=",
+          "value": 8,
+          "severity": "caution",
+          "message": "High UV expected — provide shade for daytime outdoor events."
+        }
+      ]
+    }
+  }
+}
