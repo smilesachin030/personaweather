@@ -19,7 +19,6 @@ A calm, action-first app experience built to feel trustworthy, useful, and offli
 - Trust-by-design: explains freshness, coverage, and uncertainty clearly
 - Offline resilience: stores provider responses and avoids fabricated values
 - Privacy-aware architecture: keeps weather, assistant, and UI data local
-- Product-ready structure: implementation + UX research docs kept side-by-side
 
 ## High-level architecture
 
@@ -117,8 +116,6 @@ sih/
 ├── .github/workflows/           # CI for tests, lint, and debug/release builds
 ├── archive/                     # Legacy prototype; excluded from the active build
 ├── README.md                    # Project overview
-├── PersonaWeather_Implementation_Plan.md
-├── PersonaWeather_UX_Research_and_Implementation_Plan.md
 ├── DECISIONS.md
 └── build.gradle.kts
 ```
